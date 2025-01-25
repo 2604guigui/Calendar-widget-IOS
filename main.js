@@ -113,7 +113,7 @@ const WIDGET_CONFIGURATIONS = {
   dayOfWeekTextSize: 13,
 
   // Text size of the event text label
-  eventTextSize: 12,
+  eventTextSize: 9,
 
   // Default text color in Widget
   defaultTextColor: Color.white(),
@@ -380,7 +380,7 @@ function drawDayEventsStack(stack, day, events, maxNumAllDayEvents, hourLabels, 
         draw.setFont(new Font(font, eventTextSize));  
         if (location != null){
         draw.drawTextInRect(
-         `${title}`.substring(0,eventHeight*0.3)+`\n${location}`,
+         `${title}`.substring(0,eventHeight*0.35)+`\n${location}`,
           new Rect(
             eventsLeftPadding + eventsTextPadding,
             eventRectY,
