@@ -36,7 +36,7 @@ Date.prototype.addMinutes = function (numMinutes) {
 };
 
 /*========================================================
- * SCRIPT CONFIGURATIONS *** UPDATE ME!!! ***
+ * SCRIPT CONFIGURATIONS * UPDATE ME!!! *
  *======================================================*/
 
 // Example: 12 PM
@@ -72,8 +72,8 @@ const WIDGET_CONFIGURATIONS = {
   // This is used with "numHours" to determine which hours 
   // of each day to show in the widget.
   // If this is set to -1, it will use the current hour as 
-  // the starting time.
-  startAt: 8,
+  // the strting time.
+  startAt: 7,
 
   // Number of days to show in the widget
   numDays: 5,
@@ -113,7 +113,7 @@ const WIDGET_CONFIGURATIONS = {
   dayOfWeekTextSize: 13,
 
   // Text size of the event text label
-  eventTextSize: 9,
+  eventTextSize: 7,
 
   // Default text color in Widget
   defaultTextColor: Color.white(),
@@ -273,7 +273,7 @@ function drawDayEventsStack(stack, day, events, maxNumAllDayEvents, hourLabels, 
   draw.setTextColor(defaultTextColor);
   draw.setFont(new Font(fontBold, dayOfWeekTextSize));
   draw.drawTextInRect(
-    `${DAY_OF_WEEK_FORMAT.format(new Date(day))} ${DAY_OF_MONTH_FORMAT.format(new Date(day))}`,
+    ${DAY_OF_WEEK_FORMAT.format(new Date(day))} ${DAY_OF_MONTH_FORMAT.format(new Date(day))},
     new Rect(
       eventsLeftPadding,
       0,
@@ -307,7 +307,7 @@ function drawDayEventsStack(stack, day, events, maxNumAllDayEvents, hourLabels, 
       draw.setTextColor(eventsTextColor);
       draw.setFont(new Font(font, eventTextSize));
       draw.drawTextInRect(
-        `${title} \n${location}`,
+        ${title} \n${location},
         new Rect(
           eventsLeftPadding + eventsTextPadding,
           eventRectY,
@@ -354,8 +354,20 @@ function drawDayEventsStack(stack, day, events, maxNumAllDayEvents, hourLabels, 
     if (hourEvents) {
       for (let j = 0; j < hourEvents.length; j++) {
         // TODO - determine width of events based on num events in hour
-        const { startMinute, title, location, color, duration } = hourEvents[j];
-
+        const { startMinute, title, location, notes, color, duration } = hourEvents[j];
+        
+        // Utiliser une expression régulière pour extraire le groupe après "Groupe :" et entre crochets []
+let group = '';
+let classe = '';
+if (notes){
+const groupMatch = notes.match(/Groupe\s*:\s*\[([^\]]+)\]/);
+const classeMatch = notes.match(/Classe\s*:\s*([^\n]+)/);
+if (groupMatch) {
+  group = groupMatch[1];
+  group = group.replace(/_JAOUL$/,''  )
+}
+if (classeMatch) {classe = classeMatch[1];}
+}
         // Determine top Y of event
         const eventRectY = topPointY + Math.floor((startMinute * halfHourEventHeight) / 30);
 
@@ -378,25 +390,30 @@ function drawDayEventsStack(stack, day, events, maxNumAllDayEvents, hourLabels, 
         // Draw event name text
         draw.setTextColor(eventsTextColor);
         draw.setFont(new Font(font, eventTextSize));  
-        if (location != null){
-        draw.drawTextInRect(
-         `${title}`.substring(0,eventHeight*0.35)+`\n${location}`,
-          new Rect(
-            eventsLeftPadding + eventsTextPadding,
-            eventRectY,
-            (stackWidth - eventsLeftPadding) - eventsTextPadding,
-            eventHeight
-          )
-        );}
-        else {draw.drawTextInRect(
-         `${title}`,
-          new Rect(
-            eventsLeftPadding + eventsTextPadding,
-            eventRectY,
-            (stackWidth - eventsLeftPadding) - eventsTextPadding,
-            eventHeight
-          )
-        );
+// Accéder aux notes de l'événement
+//         const eventNotes = notes ? \nNotes: ${notes} : "";
+
+        if (location != null) {
+          draw.drawTextInRect(
+            ${title}.substring(0, eventHeight * 0.35) + `\n${group}`+ `${classe}`+
+              \n${location},
+            new Rect(
+              eventsLeftPadding + eventsTextPadding,
+              eventRectY,
+              stackWidth - eventsLeftPadding - eventsTextPadding,
+              eventHeight
+            )
+          );
+        } else {
+          draw.drawTextInRect(
+            ${title},
+            new Rect(
+              eventsLeftPadding + eventsTextPadding,
+              eventRectY,
+              stackWidth - eventsLeftPadding - eventsTextPadding,
+              eventHeight
+            )
+          );
       }
       }
     }
@@ -459,7 +476,7 @@ function drawHoursLabelStack(stack, maxNumAllDayEvents, hourLabels, {
     // Draw hour text
     draw.setTextColor(defaultTextColor);
     draw.setFont(new Font(font, eventTextSize));
-    draw.drawText(`${currentHourText}`, new Point(0, topPointY));
+    draw.drawText(${currentHourText}, new Point(0, topPointY));
   }
 
   // Put the content on the widget stack
@@ -526,7 +543,8 @@ async function getEvents({ numDays, calendars }) {
         eventsByHour['all-day'].push({
           title: e.title,
           location: e.location,
-          color: `#${e.calendar.color.hex}`,
+          note: e.note,//Modifie mais bon
+          color: #${e.calendar.color.hex},
         });
       } else { // Other events
         const hourKey = HOUR_FORMAT.format(start);
@@ -543,7 +561,8 @@ async function getEvents({ numDays, calendars }) {
           startMinute: start.getMinutes(),
           title: e.title,
           location: e.location,
-          color: `#${e.calendar.color.hex}`,
+          notes: e.notes, // todo
+          color: #${e.calendar.color.hex},
           duration: eventDuration,
         };
 
